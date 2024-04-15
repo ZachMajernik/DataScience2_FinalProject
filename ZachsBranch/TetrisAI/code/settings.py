@@ -1,4 +1,7 @@
 import pygame
+from sys import exit
+from os import path
+from random import choice
 
 # Game Size
 COLUMNS = 10

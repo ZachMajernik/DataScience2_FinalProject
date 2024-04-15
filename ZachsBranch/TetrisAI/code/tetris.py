@@ -1,9 +1,4 @@
 from settings import *
-from sys import exit
-from os import path
-
-# components
-from random import choice
 
 class Tetris:
     def __init__(self):
@@ -25,7 +20,10 @@ class Tetris:
         pass
 
     def step(self):
-        pass
+        print('step')
+        # self.game.inStep = True
+        # self.game.timers['vertical move'].repeated = True
+        # self.game.timers['vertical move'].activate()
 
     def update_score(self, lines, score, level):
         self.score.lines = lines
@@ -63,6 +61,8 @@ class Tetris:
 class Game:
     def __init__(self, get_next_shape, update_score):
 
+        self.inStep = False
+
         # general
         self.surface = pygame.Surface((GAME_WIDTH, GAME_HEIGHT))
         self.display_surface = pygame.display.get_surface()
@@ -95,7 +95,7 @@ class Game:
             'horizontal move': Timer(MOVE_WAIT_TIME),
             'rotate': Timer(ROTATE_WAIT_TIME)
         }
-        self.timers['vertical move'].activate()
+        # self.timers['vertical move'].activate()
 
         # score
         self.current_level = 1
@@ -117,6 +117,9 @@ class Game:
         self.update_score(self.current_lines, self.current_score, self.current_level)
 
     def create_new_tetromino(self):
+        self.inStep = False
+        self.timers['vertical move'].repeated = False
+        self.timers['vertical move'].deactivate()
         self.check_game_over()
         self.check_finished_rows()
         self.tetromino = Tetromino(self.get_next_shape(), 
@@ -128,6 +131,7 @@ class Game:
         for block in self.tetromino.blocks:
             if block.pos.y < 0:
                 self.isGameOver = True
+                self.inStep = False
                 for timer in self.timers.keys():
                     self.timers[timer].repeated = False
                     self.timers[timer].deactivate()
@@ -203,9 +207,11 @@ class Game:
     def run(self):
 
         # update
-        self.input()
-        self.timer_update()
-        self.sprites.update()
+        if self.inStep:
+            print(self.inStep)
+            self.input()
+            self.timer_update()
+            self.sprites.update()
 
         self.surface.fill('black')
         self.sprites.draw(self.surface)
@@ -388,14 +394,3 @@ class Timer:
             # repeat timer
             if self.repeated:
                 self.activate()
-
-class Main:
-    def __init__(self):
-        self.tetris = Tetris()
-
-    def run(self):
-        self.tetris.reset()
-
-if __name__ == '__main__':
-    main = Main()
-    main.run()
