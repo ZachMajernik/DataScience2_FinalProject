@@ -15,10 +15,14 @@ class Main:
         pygame.init()
         self.display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         self.clock = pygame.time.Clock()
+
         pygame.display.set_caption('Tetris')
 
         # shapes
-        self.next_shapes = [choice(list(TETROMINOS.keys())) for shape in range(3)]
+        self.bag = list(TETROMINOS.keys())
+        self.next_shapes = [choice(self.bag) for _ in range(3)]
+        for shape in self.next_shapes:
+            self.bag.remove(shape)
 
         # components
         self.game = Game(self.get_next_shape, self.update_score)
@@ -37,7 +41,10 @@ class Main:
 
     def get_next_shape(self):
         next_shape = self.next_shapes.pop(0)
-        self.next_shapes.append(choice(list(TETROMINOS.keys())))
+        self.next_shapes.append(choice(self.bag))
+        self.bag.remove(self.next_shapes[2])
+        if len(self.bag) < 1:
+            self.bag = list(TETROMINOS.keys())
         return next_shape
 
     def run(self):
